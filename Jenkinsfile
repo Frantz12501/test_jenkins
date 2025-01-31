@@ -62,13 +62,4 @@ pipeline {
         
     }
     
-    post {
-        always {
-            echo 'Stopping and removing the container...'
-            bat '''
-                docker stop %CONTAINER_ID%
-                docker rm %CONTAINER_ID%
-            '''
-        }
-    }
 }
