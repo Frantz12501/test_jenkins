@@ -13,8 +13,8 @@ pipeline {
     steps {
         echo 'Building the Docker image ....'
         echo "${DIR_PATH}"
-        sh '''
-        docker build -t python-sum . --progress=plain || exit 1
+        powershell '''
+        docker build -t python-sum . || exit 1
         '''
     }
 }
@@ -22,12 +22,13 @@ pipeline {
 stage('Cleanup') {
     steps {
         echo 'Stopping and removing the container...'
-        sh '''
+        powershell '''
         docker stop ${CONTAINER_ID_RUN}
         docker rm ${CONTAINER_ID_RUN}
         '''
     }
 }
+
 
         
         
