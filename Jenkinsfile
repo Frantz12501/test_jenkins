@@ -16,10 +16,11 @@ pipeline {
         echo 'Building the Docker image ....'
         echo "${DIR_PATH}"
         sh '''
-        docker build -t python-sum . || exit 1
+        docker build -t python-sum . --progress=plain || exit 1
         '''
     }
 }
+
 
 
         // Étape 2 : Exécution du conteneur Docker
