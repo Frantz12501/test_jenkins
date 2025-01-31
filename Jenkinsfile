@@ -10,16 +10,17 @@ pipeline {
     }
 
     stages {
-        // Étape 1 : Construction de l'image Docker
+        // Étape 1 :   Construction de l'image Docker
         stage('Build Docker Image') {
-            steps {
-                echo 'Building the Docker image...'
-                echo "${DIR_PATH}"
-                sh '''
-                docker build -t python-sum .
-                '''
-            }
-        }
+    steps {
+        echo 'Building the Docker image ....'
+        echo "${DIR_PATH}"
+        sh '''
+        docker build -t python-sum . || exit 1
+        '''
+    }
+}
+
 
         // Étape 2 : Exécution du conteneur Docker
         stage('Run Docker Container') {
@@ -77,6 +78,7 @@ pipeline {
                     docker rm %CONTAINER_ID_RUN%
                 '''
             }
+ 
         }
     } // Fermeture de la section 'stages'
 } // Fermeture de la section 'pipeline'
