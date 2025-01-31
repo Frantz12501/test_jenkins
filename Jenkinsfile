@@ -8,12 +8,20 @@ pipeline {
     }
 
     stages {
+        stage('Check Docker Version') {
+            steps {
+                echo 'Checking Docker version...'
+                bat '''
+                docker --version
+                '''
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 echo 'Building the Docker image ....'
                 echo "${DIR_PATH}"
                 bat '''
-                docker --version
                 docker build -t python-sum . || exit /b 1
                 '''
             }
@@ -56,8 +64,8 @@ pipeline {
             steps {
                 echo 'Stopping and removing the container...'
                 bat '''
-                docker stop %CONTAINER_ID_RUN%
-                docker rm %CONTAINER_ID_RUN%
+                docker stop ${CONTAINER_ID_RUN}
+                docker rm ${CONTAINER_ID_RUN}
                 '''
             }
         }
