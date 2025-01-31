@@ -4,7 +4,7 @@ pipeline {
 
     // Définir les variables d'environnement
     environment {
-        CONTAINER_ID = '0d9490baf0efff09a3e1e98cb0f1e3d5277f71dcb7c856ce84b6e8566f7fbd31' // ID du conteneur sera stocké ici
+        CONTAINER_ID = '16a185635384e3a72019accd36c8f002629b9bc803aaf518ede146be3349a22a' // ID du conteneur sera stocké ici
         SUM_PY_PATH = './sum.py' // Chemin vers le script sum.py sur la machine locale
         DIR_PATH = '.' // Chemin vers le répertoire contenant le Dockerfile
     }
