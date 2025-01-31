@@ -9,12 +9,12 @@ pipeline {
     }
     
     stages {
-        stage('Build Docker Image') {
+stage('Build Docker Image') {
     steps {
         echo 'Building the Docker image ....'
         echo "${DIR_PATH}"
-        powershell '''
-        docker build -t python-sum . || exit 1
+        bat '''
+        docker build -t python-sum . || exit /b 1
         '''
     }
 }
@@ -22,7 +22,7 @@ pipeline {
 stage('Cleanup') {
     steps {
         echo 'Stopping and removing the container...'
-        powershell '''
+        bat '''
         docker stop ${CONTAINER_ID_RUN}
         docker rm ${CONTAINER_ID_RUN}
         '''
