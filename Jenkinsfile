@@ -1,85 +1,68 @@
 pipeline {
-    // Définir l'agent global
     agent any
-
-    // Définir les variables d'environnement
+    
     environment {
-        CONTAINER_ID = '16a185635384e3a72019accd36c8f002629b9bc803aaf518ede146be3349a22a' // ID du conteneur sera stocké ici
-        SUM_PY_PATH = './sum.py' // Chemin vers le script sum.py sur la machine locale
-        DIR_PATH = '.' // Chemin vers le répertoire contenant le Dockerfile
+        SUM_PY_PATH = './sum.py'
+        DIR_PATH = '.'
+        TEST_FILE_PATH = './test_variables.txt'
     }
-
+    
     stages {
-        // Étape 1 :   Construction de l'image Docker
-    stage('Build Docker Image') {
-    steps {
-        echo 'Building the Docker image ....'
-        echo "${DIR_PATH}"
-        bat '''
-        docker build -t python-sum . || exit /b 1
-        '''
-    }
-}
-
-
-
-        // Étape 2 : Exécution du conteneur Docker
-        stage('Run Docker Container') {
+        stage('Build') {
             steps {
-                echo 'Running the Docker container...'
+                echo 'Building Docker image...'
+                bat "docker build -t python-sum ${DIR_PATH}"
+            }
+        }
+        
+        stage('Run') {
+            steps {
+                echo 'Running Docker container...'
                 script {
-                    // Lancer le conteneur en mode détaché
-                    env.CONTAINER_ID_RUN = bat(script: 'docker run -dit python-sum', returnStdout: true).trim()
-                    echo "Container ID: ${env.CONTAINER_ID_RUN}"
+                    def output = bat(script: 'docker run -dit python-sum', returnStdout: true)
+                    def lines = output.split('\n')
+                    env.CONTAINER_ID = lines[-1].trim()
+                    echo "Container ID: ${env.CONTAINER_ID}"
                 }
             }
         }
-
-        // Étape 3 : Tests dans le conteneur
-        stage('Run Tests') {
+        
+        stage('Test') {
             steps {
                 echo 'Running tests inside the container...'
-                // Copier le fichier de test dans le conteneur
-                bat '''
-                    docker cp "%SUM_PY_PATH%" "%CONTAINER_ID_RUN%:/app/sum.py"
-                '''
-                // Tester des paires de nombres depuis le fichier de test
-                bat '''
-                    @echo off
-                    setlocal enabledelayedexpansion
-
-                    for /F "tokens=1,2,3 delims= " %%A in (test_variables.txt) do (
-                        set NUM1=%%A
-                        set NUM2=%%B
-                        set EXPECTED=%%C
-
-                        rem Exécuter sum.py dans le conteneur avec les nombres
-                        for /F %%R in ('docker exec %CONTAINER_ID_RUN% python /app/sum.py !NUM1! !NUM2!') do (
-                            set RESULT=%%R
-                        )
-
-                        rem Vérifier si le résultat correspond à la valeur attendue
-                        if !RESULT! NEQ !EXPECTED! (
-                            echo Test failed for inputs !NUM1!, !NUM2!: Expected !EXPECTED!, but got !RESULT!
-                            exit /b 1
-                        ) else (
-                            echo Test passed for inputs !NUM1!, !NUM2!
-                        )
-                    )
-                '''
+                script {
+                    def testLines = readFile(TEST_FILE_PATH).split('\n')
+                    for (line in testLines) {
+                        def vars = line.split(' ')
+                        def arg1 = vars[0]
+                        def arg2 = vars[1]
+                        def expectedSum = vars[2].toFloat()
+                        
+                        // Exécuter sum.py dans le conteneur avec les arguments
+                        def output = bat(script: "docker exec ${env.CONTAINER_ID} python /app/sum.py ${arg1} ${arg2}", returnStdout: true)
+                        def result = output.split('\n')[-1].trim().toFloat()
+                        
+                        // Vérifier si le résultat correspond à la valeur attendue
+                        if (result == expectedSum) {
+                            echo "Test passed for inputs ${arg1}, ${arg2}: Expected and got ${result}"
+                        } else {
+                            error "Test failed for inputs ${arg1}, ${arg2}: Expected ${expectedSum}, but got ${result}"
+                        }
+                    }
+                }
             }
         }
-
-        // Étape 4 : Nettoyage
-        stage('Cleanup') {
-            steps {
-                echo 'Stopping and removing the container...'
-                bat '''
-                    docker stop %CONTAINER_ID_RUN%
-                    docker rm %CONTAINER_ID_RUN%
-                '''
-            }
- 
+        
+       
+    }
+    
+    post {
+        always {
+            echo 'Stopping and removing the container...'
+            bat '''
+                docker stop %CONTAINER_ID%
+                docker rm %CONTAINER_ID%
+            '''
         }
-    } // Fermeture de la section 'stages'
-} // Fermeture de la section 'pipeline'
+    }
+}
