@@ -9,24 +9,28 @@ pipeline {
     }
     
     stages {
-        stage('Build') {
-            steps {
-                echo 'Building Docker image...'
-                bat "docker build -t python-sum ${DIR_PATH}"
-            }
-        }
+        stage('Build Docker Image') {
+    steps {
+        echo 'Building the Docker image ....'
+        echo "${DIR_PATH}"
+        sh '''
+        docker build -t python-sum . --progress=plain || exit 1
+        '''
+    }
+}
+
+stage('Cleanup') {
+    steps {
+        echo 'Stopping and removing the container...'
+        sh '''
+        docker stop ${CONTAINER_ID_RUN}
+        docker rm ${CONTAINER_ID_RUN}
+        '''
+    }
+}
+
         
-        stage('Run') {
-            steps {
-                echo 'Running Docker container...'
-                script {
-                    def output = bat(script: 'docker run -dit python-sum', returnStdout: true)
-                    def lines = output.split('\n')
-                    env.CONTAINER_ID = lines[-1].trim()
-                    echo "Container ID: ${env.CONTAINER_ID}"
-                }
-            }
-        }
+        
         
         }
         
