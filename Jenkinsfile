@@ -5,6 +5,7 @@ pipeline {
         SUM_PY_PATH = './sum.py'
         DIR_PATH = '.'
         TEST_FILE_PATH = './test_variables.txt'
+        
     }
     
     stages {
@@ -53,7 +54,6 @@ pipeline {
             }
         }
         
-       
     }
     
     post {

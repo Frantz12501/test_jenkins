@@ -1,11 +1,11 @@
-# Utilise l'image officielle Python 3.13.0 sur Alpine Linux 3.20
+# Utiliser l'image officielle Python
 FROM python:3.13.0-alpine3.20
 
-# Définit le répertoire de travail dans le conteneur
+# Définir le répertoire de travail à l'intérieur du conteneur
 WORKDIR /app
 
-# Copie le script sum.py dans le répertoire /app
-COPY sum.py /app/
+# Copier le script sum.py dans le répertoire de travail
+COPY sum.py .
 
-# Commande par défaut pour que le conteneur reste actif
-CMD ["tail", "-f", "/dev/null"]
+# Assurez-vous que le conteneur reste actif après son démarrage
+CMD ["sh", "-c", "while :; do sleep 2073600; done"]
