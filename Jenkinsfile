@@ -8,8 +8,7 @@ pipeline {
         
     }
     
-    stages {
-       stage('Build Docker Image') {
+  stage('Build Docker Image') {
     steps {
         echo 'Building the Docker image ....'
         echo "${DIR_PATH}"
@@ -17,6 +16,7 @@ pipeline {
         docker build -t python-sum . --progress=plain || exit 1
         '''
     }
+}
 }
 
         
