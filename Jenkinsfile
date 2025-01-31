@@ -12,7 +12,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building Docker image...'
-                bat "docker build -t python-sum ${DIR_PATH}"
+                sh "docker build -t python-sum ${DIR_PATH}"
             }
         }
         
