@@ -10,15 +10,16 @@ pipeline {
     
     stages {
 
-     stage('Build Docker Image') {
+   stage('Build Docker Image') {
     steps {
         echo 'Building the Docker image ....'
         echo "${DIR_PATH}"
-        powershell '''
+        sh '''
         docker build -t python-sum . --progress=plain || exit 1
         '''
     }
 }
+
 
         
         stage('Run') {
