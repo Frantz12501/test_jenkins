@@ -87,22 +87,4 @@ pipeline {
             }
         }
 
-        //Etape5: Dockerhub
-        stage('Deploy to DockerHub') {
-            steps {
-                script {
-                    // Connexion à DockerHub
-                    withCredentials([string(credentialsId: 'dockerhub-credentials', variable: 'DOCKER_PASSWORD')]) {
-                        bat "echo \$DOCKER_PASSWORD | docker login -u monutilisateur --password-stdin"
-                    }
-                    
-                    // Tag de l'image
-                    bat "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:${BUILD_NUMBER}"
-                    
-                    // Push de l'image
-                    bat "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
-                    bat "docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}"
-                }
-            }
-    }
 }
